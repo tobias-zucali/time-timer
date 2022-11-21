@@ -1,0 +1,11 @@
+@use 'variables';
+
+.pie {
+  width: '100%';
+  height: '100%';
+}
+.pie_stroke {
+  fill: transparent;
+  stroke: variables.$primaryColor;
+  transition: stroke-dasharray 0.5s linear;
+}

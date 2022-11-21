@@ -1,36 +1,37 @@
 import styles from './index.module.scss';
 
 type Props = {
-  color?: string | undefined;
   percentage: number;
   style?: React.StyleHTMLAttributes<SVGElement>;
 }
 
 function Pie({
-  color = 'red',
   percentage,
-  style,
   ...otherProps
 }: Props) {
   const diameter = 10;
+  const sideLength = 2 * diameter;
   const fullCircle = Math.PI * diameter;
   return (
     <svg
+      className={styles.pie}
+      height={ sideLength }
       style={{
-        width: '100%',
         height: '100%',
-        ...style
+        width: '100%'
       }}
-      height="20"
-      width="20"
-      viewBox="0 0 20 20"
+      viewBox={`0 0 ${sideLength} ${sideLength}`}
+      width={ sideLength }
       {...otherProps}
     >
-      <circle r="10" cx="10" cy="10" fill="transparent" />
-      <circle r="5" cx="10" cy="10" fill="transparent"
-              stroke={color}
-              stroke-width="10"
-              stroke-dasharray={`${fullCircle * percentage / 100} ${fullCircle}`} />
+      <circle
+        className={styles.pie_stroke}
+        r={diameter / 2}
+        cx={diameter}
+        cy={diameter}
+        stroke-width={diameter}
+        stroke-dasharray={`${fullCircle * percentage / 100} ${fullCircle}`}
+      />
     </svg>
   );
 }
