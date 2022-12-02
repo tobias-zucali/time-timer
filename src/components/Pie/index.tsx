@@ -29,8 +29,9 @@ function Pie({
         r={diameter / 2}
         cx={diameter}
         cy={diameter}
-        stroke-width={diameter}
-        stroke-dasharray={`${fullCircle * percentage / 100} ${fullCircle}`}
+        strokeWidth={diameter}
+        strokeDasharray={`${fullCircle * percentage / 100} ${fullCircle}`}
+        transform="scale(-1 1) rotate(270, 10, 10) translate(0 -20)"
       />
     </svg>
   );
