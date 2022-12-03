@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import classNames from 'classnames'
 import { prefixZeros, getDuration, getMinutesSeconds, getPercentage } from './utils'
 
@@ -21,9 +21,15 @@ function App() {
   const secondsRef = useRef<string>('00');
   const totalDurationSeconds = useRef<number>(0);
 
-  const startInterval = () => {
-    stopInterval();
-    setTimer(setInterval(() => {
+  const stopInterval = useCallback(() => {
+    if (timer) {
+      clearInterval(timer);
+      setTimer(null);
+    }
+  }, [timer]);
+
+  const startTimer = useCallback(() => {
+    const letASecondPass = () => {
       setCurrentTimeSeconds((val) => {
         if (val > 0) {
           return val - 1;
@@ -33,43 +39,58 @@ function App() {
           return 0;
         }
       });
-    }, 1000));
-  };
-
-  
-  const stopInterval = () => {
-    if (timer) {
-      clearInterval(timer);
-      setTimer(null);
     }
-  };
 
-  const startTimer = () => {
     if (isStarted) {
-      startInterval();
-      return;
+      letASecondPass();
+    } else {
+      minuteRef.current = minuteInputRef.current?.value || '00'
+      secondsRef.current = secondsInputRef.current?.value || '00'
+      totalDurationSeconds.current = getDuration(minuteRef.current, secondsRef.current);
+      if (totalDurationSeconds.current <= 0) {
+        return;
+      }
+      setCurrentTimeSeconds(totalDurationSeconds.current);
+      setIsStarted(true);
+      setIsTimedOut(false);
     }
-    minuteRef.current = minuteInputRef.current?.value || '00'
-    secondsRef.current = secondsInputRef.current?.value || '00'
-    totalDurationSeconds.current = getDuration(minuteRef.current, secondsRef.current);
-    if (totalDurationSeconds.current <= 0) {
-      return;
-    }
-    setCurrentTimeSeconds(totalDurationSeconds.current);
-    setIsStarted(true);
-    setIsTimedOut(false);
-    startInterval();
-  };
 
-  const pauseTimer = () => {
     stopInterval();
-  }
+    setTimer(setInterval(letASecondPass, 1000));
+  }, [isStarted, stopInterval]);
 
-  const stopTimer = () => {
+  const stopTimer = useCallback(() => {
     stopInterval();
     setIsStarted(false);
     setIsTimedOut(false);
-  }
+  }, [stopInterval]);
+
+  useEffect(() => {
+    const onKeyUp = ({ key }: KeyboardEvent) => {
+
+      const toggleTimer = () => {
+        if (timer) {
+          stopInterval();
+        } else {
+          startTimer();
+        }
+      };
+
+      switch (key) {
+        case "Escape":
+          stopTimer();
+          break;
+        case "Enter":
+        case " ":
+          toggleTimer();
+          break;
+      }
+    };
+    window.addEventListener("keyup", onKeyUp, false);
+    return () => {
+      window.removeEventListener("keyup", onKeyUp, false);
+    };
+  }, [setTimer, startTimer, stopInterval, stopTimer, timer]);
 
   const [currentMinutes, currentSeconds] = getMinutesSeconds(currentTimeSeconds);
   const percentage = isStarted
@@ -109,7 +130,7 @@ function App() {
           type="number"
           value={isStarted ? currentMinutes : minutes}
           onKeyDown={({ key }) => {
-            if (minuteInputRef.current && key === ':') { 
+            if (minuteInputRef.current && key === ':') {
               minuteInputRef.current.focus()
             }
           }}
@@ -134,34 +155,17 @@ function App() {
       <div
         className={styles.controlsContainer}
       >
-        {isStarted ? (
-          <>
-            {timer ? (
-              <button
-                onClick={pauseTimer}
-              >
-                Pause
-              </button>
-            ) : (
-              <button
-                onClick={startTimer}
-              >
-                Resume
-              </button>
-            )}
-            <button
-              onClick={stopTimer}
-            >
-              Stop
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={startTimer}
-          >
-            Start
-          </button>
-        )}
+        <button
+          onClick={timer ? stopInterval : startTimer}
+        >
+          {timer ? 'STOP' : 'START'}
+        </button>
+        <button
+          onClick={stopTimer}
+          disabled={!isStarted}
+        >
+          RESET
+        </button>
       </div>
     </div>
   );
