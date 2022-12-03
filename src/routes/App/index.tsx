@@ -1,8 +1,8 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
-import classNames from 'classnames'
-import { prefixZeros, getDuration, getMinutesSeconds, getPercentage } from './utils'
+import classNames from 'classnames';
+import { prefixZeros, getDuration, getMinutesSeconds, getPercentage } from './utils';
 
-import Pie from 'components/Pie'
+import Pie from 'components/Pie';
 
 import styles from './index.module.scss';
 
@@ -39,13 +39,13 @@ function App() {
           return 0;
         }
       });
-    }
+    };
 
     if (isStarted) {
       letASecondPass();
     } else {
-      minuteRef.current = minuteInputRef.current?.value || '00'
-      secondsRef.current = secondsInputRef.current?.value || '00'
+      minuteRef.current = minuteInputRef.current?.value || '00';
+      secondsRef.current = secondsInputRef.current?.value || '00';
       totalDurationSeconds.current = getDuration(minuteRef.current, secondsRef.current);
       if (totalDurationSeconds.current <= 0) {
         return;
@@ -119,7 +119,7 @@ function App() {
       <div
         className={classNames(
           styles.numbersContainer,
-          isStarted && styles.numbersContainer_isReadonly
+          isStarted && styles.numbersContainer_isReadonly,
         )}
       >
         <input
@@ -131,7 +131,7 @@ function App() {
           value={isStarted ? currentMinutes : minutes}
           onKeyDown={({ key }) => {
             if (minuteInputRef.current && key === ':') {
-              minuteInputRef.current.focus()
+              minuteInputRef.current.focus();
             }
           }}
           onChange={({ target }) => setMinutes(prefixZeros(target.value))}

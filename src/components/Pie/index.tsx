@@ -18,7 +18,7 @@ function Pie({
       height={ sideLength }
       style={{
         height: '100%',
-        width: '100%'
+        width: '100%',
       }}
       viewBox={`0 0 ${sideLength} ${sideLength}`}
       width={ sideLength }

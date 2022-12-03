@@ -3,8 +3,8 @@ import {
   prefixZeros,
   getDuration,
   getMinutesSeconds,
-  getPercentage
-} from './utils'
+  getPercentage,
+} from './utils';
 
 
 test('parseIntSafe', () => {
