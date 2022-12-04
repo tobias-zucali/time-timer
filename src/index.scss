@@ -1,6 +1,7 @@
 @use 'variables';
 
 body {
+  color: variables.$textColor;
   background-color: variables.$backgroundColor;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
