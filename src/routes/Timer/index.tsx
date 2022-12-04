@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { useSearchParams } from "react-router-dom";
 import { prefixZeros, getDuration, getMinutesSeconds, getPercentage } from './utils';
 
 import Pie from 'components/Pie';
@@ -8,8 +9,13 @@ import styles from './index.module.scss';
 
 
 function App() {
-  const [minutes, setMinutes] = useState('01');
-  const [seconds, setSeconds] = useState('00');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const params = {
+    m: searchParams.get('m') || '01',
+    s: searchParams.get('s') || '00',
+    t: searchParams.get('t') || '',
+  };
+
   const [currentTimeSeconds, setCurrentTimeSeconds] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
   const [isTimedOut, setIsTimedOut] = useState(false);
@@ -101,14 +107,21 @@ function App() {
     <div
       className={styles.container}
     >
+      {params.t && (
+        <div
+          className={styles.title}
+        >
+          {params.t}
+        </div>
+      )}
       <div
         className={styles.pieContainer}
       >
         {isTimedOut ? (
           <div
-            className={styles.timeOut}
+            className={styles.timeOver}
           >
-            TIME OUT
+            TIME OVER
           </div>
         ) : (
           <Pie
@@ -128,13 +141,16 @@ function App() {
           readOnly={isStarted}
           ref={minuteInputRef}
           type="number"
-          value={isStarted ? currentMinutes : minutes}
+          value={isStarted ? currentMinutes : params.m}
           onKeyDown={({ key }) => {
             if (minuteInputRef.current && key === ':') {
               minuteInputRef.current.focus();
             }
           }}
-          onChange={({ target }) => setMinutes(prefixZeros(target.value))}
+          onChange={({ target }) => setSearchParams({
+            ...params,
+            m: prefixZeros(target.value),
+          })}
         />
         <div
           className={styles.separator}
@@ -145,11 +161,14 @@ function App() {
           className={classNames(styles.percentageInput, styles.percentageInput_sec)}
           max="60"
           min="0"
-          onChange={({ target }) => setSeconds(prefixZeros(target.value))}
+          onChange={({ target }) => setSearchParams({
+            ...params,
+            s: prefixZeros(target.value),
+          })}
           readOnly={isStarted}
           ref={secondsInputRef}
           type="number"
-          value={isStarted ? currentSeconds : seconds}
+          value={isStarted ? currentSeconds : params.s}
         />
       </div>
       <div

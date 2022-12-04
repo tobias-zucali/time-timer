@@ -7,6 +7,12 @@
   height: 100%;
 }
 
+.title {
+  text-align: center;
+  font-size: 5em;
+  padding-top: 0.2em;
+}
+
 .pieContainer {
   flex-grow: 1;
   height: 10em;
@@ -26,12 +32,13 @@
   }
 }
 
-.timeOut {
+.timeOver {
   align-items: center;
   display: flex;
   font-size: 6em;
   height: 100%;
   justify-content: center;
+  text-align: center;
 }
 
 .percentageInput {
