@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { prefixZeros, getDuration, getMinutesSeconds, getPercentage } from './utils';
 
 import Pie from 'components/Pie';
+import beep from 'utils/beep';
 
 import styles from './index.module.scss';
 
@@ -38,6 +39,9 @@ function App() {
     const letASecondPass = () => {
       setCurrentTimeSeconds((val) => {
         if (val > 0) {
+          if (val <= 3) {
+            beep({ duration: (val === 1) ? 1000 : 300 });
+          }
           return val - 1;
         } else {
           stopInterval();
@@ -175,13 +179,14 @@ function App() {
         className={styles.controlsContainer}
       >
         <button
+          disabled={isTimedOut}
           onClick={timer ? stopInterval : startTimer}
         >
           {timer ? 'STOP' : 'START'}
         </button>
         <button
-          onClick={stopTimer}
           disabled={!isStarted}
+          onClick={stopTimer}
         >
           RESET
         </button>
