@@ -14,24 +14,24 @@ import styles from './index.module.scss';
 
 function Timer() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const params = {
-    m: searchParams.get('m') || '01',
-    s: searchParams.get('s') || '00',
-    t: searchParams.get('t') || '',
-  };
+  const searchParamsObject = Object.fromEntries(searchParams);
 
   const [elapsedTime, setElapsedTime] = useState(0);
-  const remainingSecondsRef = useRef(0);
   const [isPaused, setIsPaused] = useState(true);
   const isStarted = (elapsedTime > 0);
 
-  const totalDuration = getSecondsDuration(params.m, params.s);
+  let {
+    m: minutes = '01',
+    s: seconds = '00',
+    title,
+  } = searchParamsObject;
+
+  const totalDuration = getSecondsDuration(minutes, seconds);
+  const remainingSecondsRef = useRef(totalDuration);
 
   const elapsedPercentage = (elapsedTime) / totalDuration;
   const isTimedOut = (elapsedPercentage === 1);
 
-  let minutes = params.m;
-  let seconds = params.s;
   if (isStarted) {
     [minutes, seconds] = getMinutesSeconds(
       totalDuration * (1 - elapsedPercentage),
@@ -59,14 +59,8 @@ function Timer() {
     { isPaused: isTimedOut || isPaused },
   );
 
-  /*       if (val > 0) {
-          if (val <= 3) {
-            beep({ duration: (val === 1) ? 1000 : 300 });
-          }
-          return val - 1;
-        } */
-
   const resetTimer = () => {
+    remainingSecondsRef.current = totalDuration;
     setIsPaused(true);
     setElapsedTime(0);
   };
@@ -97,11 +91,11 @@ function Timer() {
     <div
       className={styles.container}
     >
-      {params.t && (
+      {title && (
         <div
           className={styles.title}
         >
-          {params.t}
+          {title}
         </div>
       )}
       <div
@@ -124,11 +118,11 @@ function Timer() {
         seconds={seconds}
         isReadonly={isStarted}
         onMinutesChange={({ target }) => setSearchParams({
-          ...params,
+          ...searchParamsObject,
           m: prefixZeros(target.value),
         })}
         onSecondsChange={({ target }) => setSearchParams({
-          ...params,
+          ...searchParamsObject,
           s: prefixZeros(target.value),
         })}
       />
