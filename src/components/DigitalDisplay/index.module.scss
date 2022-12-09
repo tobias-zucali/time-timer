@@ -1,0 +1,43 @@
+@use 'variables';
+
+.container {
+  align-content: center;
+  display: flex;
+  text-align: center;
+  font-size: 5em;
+  font-family: 'Seven Segment', sans-serif;
+  font-weight: bold;
+
+  &_isReadonly {
+    opacity: 0.5;
+  }
+}
+
+.input {
+  all: unset;
+  display: inline-block;
+  font-size: inherit;
+  font-family: inherit;
+  flex-grow: 1;
+  text-align: center;
+  width: 2em;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  &.input_min {
+    text-align: right;
+  }
+  &.input_sec {
+    text-align: left;
+  }
+}
+
+.separator {
+  line-height: 0.4em;
+  font-size: 140%;
+  padding: 0 0.1em;
+}

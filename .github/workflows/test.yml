@@ -1,0 +1,25 @@
+name: Test
+
+on:
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Install
+        run: |
+          npm ci --no-audit
+          npm audit --omit=dev
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build

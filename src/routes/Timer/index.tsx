@@ -1,121 +1,101 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
-import classNames from 'classnames';
+import { useRef, useState } from 'react';
 import { useSearchParams } from "react-router-dom";
-import { prefixZeros, getDuration, getMinutesSeconds, getPercentage } from './utils';
+
+import { prefixZeros, getSecondsDuration, getMinutesSeconds } from 'utils/timeInputHelpers';
+import useAnimationFrame from 'utils/useAnimationFrame';
+import useGlobalKeyUp from 'utils/useGlobalKeyUp';
+import beep from 'utils/beep';
 
 import Pie from 'components/Pie';
-import beep from 'utils/beep';
+import DigitalDisplay from 'components/DigitalDisplay';
 
 import styles from './index.module.scss';
 
 
 function Timer() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const params = {
-    m: searchParams.get('m') || '01',
-    s: searchParams.get('s') || '00',
-    t: searchParams.get('t') || '',
+  const searchParamsObject = Object.fromEntries(searchParams);
+
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [isPaused, setIsPaused] = useState(true);
+  const isStarted = (elapsedTime > 0);
+
+  let {
+    m: minutes = '01',
+    s: seconds = '00',
+    title,
+  } = searchParamsObject;
+
+  const totalDuration = getSecondsDuration(minutes, seconds);
+  const remainingSecondsRef = useRef(totalDuration);
+
+  const elapsedPercentage = (elapsedTime) / totalDuration;
+  const isTimedOut = (elapsedPercentage === 1);
+
+  if (isStarted) {
+    [minutes, seconds] = getMinutesSeconds(
+      totalDuration * (1 - elapsedPercentage),
+    );
+  }
+
+  useAnimationFrame(
+    (deltaTime) => setElapsedTime((prevState) => {
+      const newValue = prevState + deltaTime / 1000;
+      if (newValue > totalDuration) {
+        beep({ duration: 1000 });
+        remainingSecondsRef.current = 0;
+        setIsPaused(true);
+        return totalDuration;
+      }
+      const remainingSeconds = Math.ceil(totalDuration - newValue);
+      if (remainingSeconds !== remainingSecondsRef.current) {
+        remainingSecondsRef.current = remainingSeconds;
+        if (remainingSeconds <= 2) {
+          beep({ duration: 300 });
+        }
+      }
+      return newValue;
+    }),
+    { isPaused: isTimedOut || isPaused },
+  );
+
+  const resetTimer = () => {
+    remainingSecondsRef.current = totalDuration;
+    setIsPaused(true);
+    setElapsedTime(0);
   };
 
-  const [currentTimeSeconds, setCurrentTimeSeconds] = useState(0);
-  const [isStarted, setIsStarted] = useState(false);
-  const [isTimedOut, setIsTimedOut] = useState(false);
-  const [timer, setTimer] = useState<NodeJS.Timer | null>(null);
+  const toggleTimer = () => {
+    setIsPaused((prevState) => !prevState);
+  };
 
-  const minuteInputRef = useRef<HTMLInputElement>(null);
-  const secondsInputRef = useRef<HTMLInputElement>(null);
-  const minuteRef = useRef<string>('01');
-  const secondsRef = useRef<string>('00');
-  const totalDurationSeconds = useRef<number>(0);
-
-  const stopInterval = useCallback(() => {
-    if (timer) {
-      clearInterval(timer);
-      setTimer(null);
+  useGlobalKeyUp((event: KeyboardEvent) => {
+    const target = event.target as any;
+    if (target && target.tagName === 'BUTTON') {
+      return;
     }
-  }, [timer]);
-
-  const startTimer = useCallback(() => {
-    const letASecondPass = () => {
-      setCurrentTimeSeconds((val) => {
-        if (val > 0) {
-          if (val <= 3) {
-            beep({ duration: (val === 1) ? 1000 : 300 });
-          }
-          return val - 1;
-        } else {
-          stopInterval();
-          setIsTimedOut(true);
-          return 0;
-        }
-      });
-    };
-
-    if (isStarted) {
-      letASecondPass();
-    } else {
-      minuteRef.current = minuteInputRef.current?.value || '00';
-      secondsRef.current = secondsInputRef.current?.value || '00';
-      totalDurationSeconds.current = getDuration(minuteRef.current, secondsRef.current);
-      if (totalDurationSeconds.current <= 0) {
-        return;
-      }
-      setCurrentTimeSeconds(totalDurationSeconds.current);
-      setIsStarted(true);
-      setIsTimedOut(false);
-    }
-
-    stopInterval();
-    setTimer(setInterval(letASecondPass, 1000));
-  }, [isStarted, stopInterval]);
-
-  const stopTimer = useCallback(() => {
-    stopInterval();
-    setIsStarted(false);
-    setIsTimedOut(false);
-  }, [stopInterval]);
-
-  useEffect(() => {
-    const onKeyUp = ({ key }: KeyboardEvent) => {
-
-      const toggleTimer = () => {
-        if (timer) {
-          stopInterval();
-        } else {
-          startTimer();
-        }
-      };
-
-      switch (key) {
-        case "Escape":
-          stopTimer();
-          break;
-        case "Enter":
-        case " ":
+    switch (event.key) {
+      case "Escape":
+        resetTimer();
+        break;
+      case "Enter":
+      case " ":
+        if (!isTimedOut) {
           toggleTimer();
-          break;
-      }
-    };
-    window.addEventListener("keyup", onKeyUp, false);
-    return () => {
-      window.removeEventListener("keyup", onKeyUp, false);
-    };
-  }, [setTimer, startTimer, stopInterval, stopTimer, timer]);
-
-  const [currentMinutes, currentSeconds] = getMinutesSeconds(currentTimeSeconds);
-  const percentage = isStarted
-    ? getPercentage(currentTimeSeconds, totalDurationSeconds.current)
-    : 100;
+        }
+        break;
+    }
+  });
 
   return (
     <div
       className={styles.container}
     >
-      {params.t && (
+      {title && (
         <div
           className={styles.title}
         >
-          {params.t}
+          {title}
         </div>
       )}
       <div
@@ -129,64 +109,35 @@ function Timer() {
           </div>
         ) : (
           <Pie
-            percentage={percentage}
+            percentage={100 * (1 - elapsedPercentage)}
           />
         )}
       </div>
-      <div
-        className={classNames(
-          styles.numbersContainer,
-          isStarted && styles.numbersContainer_isReadonly,
-        )}
-      >
-        <input
-          className={classNames(styles.percentageInput, styles.percentageInput_min)}
-          min="0"
-          readOnly={isStarted}
-          ref={minuteInputRef}
-          type="number"
-          value={isStarted ? currentMinutes : params.m}
-          onKeyDown={({ key }) => {
-            if (minuteInputRef.current && key === ':') {
-              minuteInputRef.current.focus();
-            }
-          }}
-          onChange={({ target }) => setSearchParams({
-            ...params,
-            m: prefixZeros(target.value),
-          })}
-        />
-        <div
-          className={styles.separator}
-        >
-          {' : '}
-        </div>
-        <input
-          className={classNames(styles.percentageInput, styles.percentageInput_sec)}
-          max="60"
-          min="0"
-          onChange={({ target }) => setSearchParams({
-            ...params,
-            s: prefixZeros(target.value),
-          })}
-          readOnly={isStarted}
-          ref={secondsInputRef}
-          type="number"
-          value={isStarted ? currentSeconds : params.s}
-        />
-      </div>
+      <DigitalDisplay
+        minutes={minutes}
+        seconds={seconds}
+        isReadonly={isStarted}
+        onMinutesChange={({ target }) => setSearchParams({
+          ...searchParamsObject,
+          m: prefixZeros(target.value),
+        })}
+        onSecondsChange={({ target }) => setSearchParams({
+          ...searchParamsObject,
+          s: prefixZeros(target.value),
+        })}
+      />
       <div
         className={styles.controlsContainer}
       >
         <button
           disabled={isTimedOut}
-          onClick={timer ? stopInterval : startTimer}
+          onClick={toggleTimer}
         >
-          {timer ? 'STOP' : 'START'}
+          {isPaused || !isStarted ? 'START' : 'STOP'}
         </button>
         <button
           disabled={!isStarted}
-          onClick={stopTimer}
+          onClick={resetTimer}
         >
           RESET
         </button>
