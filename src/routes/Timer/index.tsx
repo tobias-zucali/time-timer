@@ -9,7 +9,7 @@ import beep from 'utils/beep';
 import styles from './index.module.scss';
 
 
-function App() {
+function Timer() {
   const [searchParams, setSearchParams] = useSearchParams();
   const params = {
     m: searchParams.get('m') || '01',
@@ -195,4 +195,4 @@ function App() {
   );
 }
 
-export default App;
+export default Timer;
