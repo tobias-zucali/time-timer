@@ -3,9 +3,8 @@ name: Build and Deploy
 on:
   push:
     branches: ["main"]
-  on:
-    pull_request:
-      types: [opened, reopened, edited]
+  pull_request:
+    types: [opened, reopened, edited]
   workflow_dispatch:
 
 permissions:
