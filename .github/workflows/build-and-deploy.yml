@@ -3,6 +3,9 @@ name: Build and Deploy
 on:
   push:
     branches: ["main"]
+  on:
+    pull_request:
+      types: [opened, reopened, edited]
   workflow_dispatch:
 
 permissions:
@@ -19,7 +22,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-      
+
     runs-on: ubuntu-latest
 
     steps:
