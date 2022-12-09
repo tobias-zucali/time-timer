@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from "react-router-dom";
 
 import Pie from 'components/Pie';
@@ -6,6 +6,7 @@ import DigitalDisplay from 'components/DigitalDisplay';
 /* import beep from 'utils/beep'; */
 import { prefixZeros, getSecondsDuration, getMinutesSeconds } from 'utils/timeInputHelpers';
 import useAnimationFrame from 'utils/useAnimationFrame';
+import useGlobalKeyUp from 'utils/useGlobalKeyUp';
 
 import styles from './index.module.scss';
 
@@ -63,23 +64,23 @@ function Timer() {
     setIsPaused((prevState) => !prevState);
   };
 
-  useEffect(() => {
-    const onKeyUp = ({ key }: KeyboardEvent) => {
-      switch (key) {
-        case "Escape":
-          resetTimer();
-          break;
-        case "Enter":
-        case " ":
+  useGlobalKeyUp((event: KeyboardEvent) => {
+    const target = event.target as any;
+    if (target && target.tagName === 'BUTTON') {
+      return;
+    }
+    switch (event.key) {
+      case "Escape":
+        resetTimer();
+        break;
+      case "Enter":
+      case " ":
+        if (!isTimedOut) {
           toggleTimer();
-          break;
-      }
-    };
-    window.addEventListener("keyup", onKeyUp, false);
-    return () => {
-      window.removeEventListener("keyup", onKeyUp, false);
-    };
-  }, []);
+        }
+        break;
+    }
+  });
 
 
   return (
