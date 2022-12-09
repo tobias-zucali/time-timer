@@ -11,7 +11,7 @@ export const prefixZeros = (value: string | number) => {
   return prefixedValue;
 };
 
-export const getDuration = (
+export const getSecondsDuration = (
   minutes: string,
   seconds: string,
 ) => parseIntSafe(minutes) * 60 + parseIntSafe(seconds);
@@ -19,13 +19,5 @@ export const getDuration = (
 export const getMinutesSeconds = (secondsDuration: number) => {
   const seconds = secondsDuration % 60;
   const minutes = (secondsDuration - seconds) / 60;
-  return [prefixZeros(minutes), prefixZeros(seconds)];
-};
-
-export const getPercentage = (current: number, total: number) => {
-  if (current > 0) {
-    return (current - 1) / total * 100;
-  } else {
-    return 0;
-  }
+  return [prefixZeros(minutes), prefixZeros(Math.ceil(seconds))];
 };

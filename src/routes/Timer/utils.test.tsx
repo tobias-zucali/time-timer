@@ -1,9 +1,8 @@
 import {
   parseIntSafe,
   prefixZeros,
-  getDuration,
+  getSecondsDuration,
   getMinutesSeconds,
-  getPercentage,
 } from './utils';
 
 
@@ -21,23 +20,14 @@ test('prefixZeros', () => {
   expect(prefixZeros('999')).toBe('999');
 });
 
-test('getDuration', () => {
-  expect(getDuration('', '')).toBe(0);
-  expect(getDuration('1', '1')).toBe(61);
-  expect(getDuration('10', '99')).toBe(699);
+test('getSecondsDuration', () => {
+  expect(getSecondsDuration('', '')).toBe(0);
+  expect(getSecondsDuration('1', '1')).toBe(61);
+  expect(getSecondsDuration('10', '99')).toBe(699);
 });
 
 test('getMinutesSeconds', () => {
   expect(getMinutesSeconds(1)).toEqual(['00', '01']);
   expect(getMinutesSeconds(61)).toEqual(['01', '01']);
   expect(getMinutesSeconds(123)).toEqual(['02', '03']);
-});
-
-test('getPercentage', () => {
-  expect(getPercentage(4, 4)).toBe(75);
-  expect(getPercentage(3, 4)).toBe(50);
-  expect(getPercentage(2, 4)).toBe(25);
-  expect(getPercentage(1, 4)).toBe(0);
-  expect(getPercentage(0, 4)).toBe(0);
-  expect(getPercentage(-1, 4)).toBe(0);
 });
