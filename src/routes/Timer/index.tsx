@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from "react-router-dom";
-import { prefixZeros, getSecondsDuration, getMinutesSeconds } from './utils';
 
 import Pie from 'components/Pie';
 import DigitalDisplay from 'components/DigitalDisplay';
 /* import beep from 'utils/beep'; */
+import { prefixZeros, getSecondsDuration, getMinutesSeconds } from 'utils/timeInputHelpers';
 import useAnimationFrame from 'utils/useAnimationFrame';
 
 import styles from './index.module.scss';

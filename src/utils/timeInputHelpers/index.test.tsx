@@ -3,7 +3,7 @@ import {
   prefixZeros,
   getSecondsDuration,
   getMinutesSeconds,
-} from './utils';
+} from '.';
 
 
 test('parseIntSafe', () => {
