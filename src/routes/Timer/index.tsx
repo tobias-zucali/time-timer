@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useSearchParams } from "react-router-dom";
 
-import Pie from 'components/Pie';
-import DigitalDisplay from 'components/DigitalDisplay';
-/* import beep from 'utils/beep'; */
 import { prefixZeros, getSecondsDuration, getMinutesSeconds } from 'utils/timeInputHelpers';
 import useAnimationFrame from 'utils/useAnimationFrame';
 import useGlobalKeyUp from 'utils/useGlobalKeyUp';
+import beep from 'utils/beep';
+
+import Pie from 'components/Pie';
+import DigitalDisplay from 'components/DigitalDisplay';
 
 import styles from './index.module.scss';
 
@@ -20,6 +21,7 @@ function Timer() {
   };
 
   const [elapsedTime, setElapsedTime] = useState(0);
+  const remainingSecondsRef = useRef(0);
   const [isPaused, setIsPaused] = useState(true);
   const isStarted = (elapsedTime > 0);
 
@@ -40,8 +42,17 @@ function Timer() {
     (deltaTime) => setElapsedTime((prevState) => {
       const newValue = prevState + deltaTime / 1000;
       if (newValue > totalDuration) {
+        beep({ duration: 1000 });
+        remainingSecondsRef.current = 0;
         setIsPaused(true);
         return totalDuration;
+      }
+      const remainingSeconds = Math.ceil(totalDuration - newValue);
+      if (remainingSeconds !== remainingSecondsRef.current) {
+        remainingSecondsRef.current = remainingSeconds;
+        if (remainingSeconds <= 2) {
+          beep({ duration: 300 });
+        }
       }
       return newValue;
     }),
@@ -81,7 +92,6 @@ function Timer() {
         break;
     }
   });
-
 
   return (
     <div
