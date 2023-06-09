@@ -37,9 +37,10 @@ test('getSecondsDuration', () => {
 test('getMinutesSeconds', () => {
   expect(getMinutesSeconds(1)).toEqual(['00', '01']);
   expect(getMinutesSeconds(59)).toEqual(['00', '59']);
-  expect(getMinutesSeconds(59.9)).toEqual(['00', '59']);
+  expect(getMinutesSeconds(59.1)).toEqual(['01', '00']);
+  expect(getMinutesSeconds(59.9)).toEqual(['01', '00']);
   expect(getMinutesSeconds(60)).toEqual(['01', '00']);
-  expect(getMinutesSeconds(60.1)).toEqual(['01', '00']);
+  expect(getMinutesSeconds(60.1)).toEqual(['01', '01']);
   expect(getMinutesSeconds(61)).toEqual(['01', '01']);
   expect(getMinutesSeconds(119)).toEqual(['01', '59']);
   expect(getMinutesSeconds(120)).toEqual(['02', '00']);
