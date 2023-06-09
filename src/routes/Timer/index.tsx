@@ -5,9 +5,11 @@ import { prefixZeros, getSecondsDuration, getMinutesSeconds } from 'utils/timeIn
 import useAnimationFrame from 'utils/useAnimationFrame';
 import useGlobalKeyUp from 'utils/useGlobalKeyUp';
 import beep from 'utils/beep';
+import useSound from 'utils/useSound';
 
 import Pie from 'components/Pie';
 import DigitalDisplay from 'components/DigitalDisplay';
+import AnimatedBell from 'components/AnimatedBell';
 
 import styles from './index.module.scss';
 
@@ -15,6 +17,8 @@ import styles from './index.module.scss';
 function Timer() {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchParamsObject = Object.fromEntries(searchParams);
+
+  const sound = useSound();
 
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isPaused, setIsPaused] = useState(true);
@@ -42,7 +46,8 @@ function Timer() {
     (deltaTime) => setElapsedTime((prevState) => {
       const newValue = prevState + deltaTime / 1000;
       if (newValue > totalDuration) {
-        beep({ duration: 1000 });
+        sound.play();
+
         remainingSecondsRef.current = 0;
         setIsPaused(true);
         return totalDuration;
@@ -51,7 +56,7 @@ function Timer() {
       if (remainingSeconds !== remainingSecondsRef.current) {
         remainingSecondsRef.current = remainingSeconds;
         if (remainingSeconds <= 2) {
-          beep({ duration: 300 });
+          beep({ duration: 100, frequency: 350 });
         }
       }
       return newValue;
@@ -102,11 +107,9 @@ function Timer() {
         className={styles.pieContainer}
       >
         {isTimedOut ? (
-          <div
-            className={styles.timeOver}
-          >
-            TIME OVER
-          </div>
+          <AnimatedBell
+            className={styles.bell}
+          />
         ) : (
           <Pie
             percentage={100 * (1 - elapsedPercentage)}
