@@ -6,8 +6,12 @@
 
 .title {
   text-align: center;
-  font-size: 5em;
+  font-size: 3em;
   padding-top: 0.2em;
+
+  @media (min-width: 600px) and (min-height: 600px) {
+    font-size: 5em;
+  }
 }
 
 .pieContainer {
