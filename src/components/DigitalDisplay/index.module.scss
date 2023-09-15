@@ -4,8 +4,8 @@
   align-content: center;
   display: flex;
   text-align: center;
-  font-size: 5em;
-  font-family: 'Seven Segment', sans-serif;
+  font-size: 8em;
+  font-family: monospace;
   font-weight: bold;
 
   &_isReadonly {
@@ -21,6 +21,7 @@
   flex-grow: 1;
   text-align: center;
   width: 2em;
+  padding: 0;
 
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
@@ -37,7 +38,5 @@
 }
 
 .separator {
-  line-height: 0.4em;
-  font-size: 140%;
-  padding: 0 0.1em;
+  font-family: monospace;
 }
