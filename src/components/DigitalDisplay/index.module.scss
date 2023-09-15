@@ -3,10 +3,11 @@
 .container {
   align-content: center;
   display: flex;
-  text-align: center;
-  font-size: 8em;
   font-family: monospace;
+  font-size: 8em;
   font-weight: bold;
+  position: relative;
+  text-align: center;
 
   &_isReadonly {
     opacity: 0.5;
@@ -37,6 +38,17 @@
   }
 }
 
-.separator {
-  font-family: monospace;
+.container_isAlert {
+  animation: blink-animation 2s steps(2, start) infinite;
+  color: variables.$primaryColor;
+}
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
 }

@@ -124,9 +124,10 @@ function Timer() {
           className={styles.centerContainer}
         >
           <DigitalDisplay
+            isAlert={isTimedOut}
+            isReadonly={isStarted}
             minutes={minutes}
             seconds={seconds}
-            isReadonly={isStarted}
             onMinutesChange={({ target }) => setSearchParams({
               ...searchParamsObject,
               m: prefixZeros(target.value),

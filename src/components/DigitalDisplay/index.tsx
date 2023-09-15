@@ -5,7 +5,8 @@ import styles from './index.module.scss';
 
 
 type Props = {
-  isReadonly: boolean;
+  isAlert?: boolean;
+  isReadonly?: boolean;
   minutes: string;
   onMinutesChange: React.ChangeEventHandler<HTMLInputElement>;
   onSecondsChange: React.ChangeEventHandler<HTMLInputElement>;
@@ -14,7 +15,8 @@ type Props = {
 }
 
 function DigitalDisplay({
-  isReadonly,
+  isAlert = false,
+  isReadonly = false,
   minutes,
   onMinutesChange,
   onSecondsChange,
@@ -28,7 +30,7 @@ function DigitalDisplay({
     <div
       className={classNames(
         styles.container,
-        isReadonly && styles.container_isReadonly,
+        (isAlert && styles.container_isAlert) || (isReadonly && styles.container_isReadonly),
       )}
       {...otherProps}
     >
