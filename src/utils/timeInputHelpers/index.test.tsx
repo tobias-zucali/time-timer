@@ -16,8 +16,9 @@ test('parseIntSafe', () => {
 test('prefixZeros', () => {
   expect(prefixZeros(1)).toBe('01');
   expect(prefixZeros(NaN)).toBe('00');
-  expect(prefixZeros('99')).toBe('99');
-  expect(prefixZeros('999')).toBe('999');
+  expect(prefixZeros(99)).toBe('99');
+  expect(prefixZeros(999)).toBe('999');
+  expect(prefixZeros(-1)).toBe('-01');
 });
 
 test('getSecondsDuration', () => {
@@ -46,4 +47,19 @@ test('getMinutesSeconds', () => {
   expect(getMinutesSeconds(120)).toEqual(['02', '00']);
   expect(getMinutesSeconds(121)).toEqual(['02', '01']);
   expect(getMinutesSeconds(123)).toEqual(['02', '03']);
+  expect(getMinutesSeconds(0.1)).toEqual(['00', '01']);
+  expect(getMinutesSeconds(0)).toEqual(['00', '00']);
+  expect(getMinutesSeconds(-0.1)).toEqual(['00', '00']);
+  expect(getMinutesSeconds(-0.9)).toEqual(['00', '00']);
+  expect(getMinutesSeconds(-1)).toEqual(['-00', '01']);
+  expect(getMinutesSeconds(-1.1)).toEqual(['-00', '01']);
+});
+
+test('getMinutesSeconds negative freeze', () => {
+  expect(getMinutesSeconds(1, 10)).toEqual(['00', '01']);
+  expect(getMinutesSeconds(-1, 10)).toEqual(['00', '00']);
+  expect(getMinutesSeconds(9, 10)).toEqual(['00', '09']);
+  expect(getMinutesSeconds(-9, 10)).toEqual(['00', '00']);
+  expect(getMinutesSeconds(10, 10)).toEqual(['00', '10']);
+  expect(getMinutesSeconds(-10, 10)).toEqual(['-00', '10']);
 });

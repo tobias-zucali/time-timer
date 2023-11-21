@@ -4,11 +4,14 @@ export const parseIntSafe = (value: string | number) => {
 };
 
 export const prefixZeros = (value: string | number) => {
-  let prefixedValue = `${parseIntSafe(value)}`;
+  const numberValue = parseIntSafe(value);
+  const isNegative = numberValue < 0;
+  const absValue = isNegative ? numberValue * -1 : numberValue;
+  let prefixedValue = `${absValue}`;
   while (prefixedValue.length < 2) {
     prefixedValue = `0${prefixedValue}`;
   }
-  return prefixedValue;
+  return isNegative ? `-${prefixedValue}`: prefixedValue;
 };
 
 export const getSecondsDuration = (
@@ -16,9 +19,18 @@ export const getSecondsDuration = (
   seconds: string,
 ) => parseIntSafe(minutes) * 60 + parseIntSafe(seconds);
 
-export const getMinutesSeconds = (secondsDuration: number) => {
+export const getMinutesSeconds = (
+  secondsDuration: number,
+  negativeFreezeSeconds: number = 0,
+) => {
   const secondsDurationRounded = Math.ceil(secondsDuration);
-  const seconds = secondsDurationRounded % 60;
-  const minutes = (secondsDurationRounded - seconds) / 60;
-  return [prefixZeros(minutes), prefixZeros(seconds)];
+  const isNegative = secondsDurationRounded < 0;
+  const secondsDurationRoundedAbs = isNegative ? secondsDurationRounded * -1 : secondsDurationRounded;
+  if (isNegative && negativeFreezeSeconds > 0 && secondsDurationRoundedAbs < negativeFreezeSeconds) {
+    return ['00', '00'];
+  }
+
+  const seconds = secondsDurationRoundedAbs % 60;
+  const minutes = (secondsDurationRoundedAbs - seconds) / 60;
+  return [`${isNegative ? '-' : ''}${prefixZeros(minutes)}`, prefixZeros(seconds)];
 };

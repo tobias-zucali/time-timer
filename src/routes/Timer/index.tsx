@@ -21,6 +21,7 @@ function Timer() {
 
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isPaused, setIsPaused] = useState(true);
+  const isTimedOutRef = useRef(false);
   const isStarted = (elapsedTime > 0);
 
   const {
@@ -43,32 +44,21 @@ function Timer() {
   const remainingSecondsRef = useRef(totalDuration);
 
   const elapsedPercentage = (elapsedTime) / totalDuration;
-  const isTimedOut = (elapsedPercentage === 1);
+  const isTimedOut = (elapsedPercentage >= 1);
+
+  if (isTimedOut && !isTimedOutRef.current) {
+    sound.play();
+  }
+  isTimedOutRef.current = isTimedOut;
 
   const [minutes = totalMinutes, seconds = totalSeconds] = (isStarted) ? getMinutesSeconds(
     totalDuration * (1 - elapsedPercentage),
+    10,
   ) : [];
 
   useAnimationFrame(
-    (deltaTime) => setElapsedTime((prevState) => {
-      const newValue = prevState + deltaTime / 1000;
-      if (newValue > totalDuration) {
-        sound.play();
-
-        remainingSecondsRef.current = 0;
-        setIsPaused(true);
-        return totalDuration;
-      }
-      const remainingSeconds = Math.ceil(totalDuration - newValue);
-      if (remainingSeconds !== remainingSecondsRef.current) {
-        remainingSecondsRef.current = remainingSeconds;
-        // if (remainingSeconds <= 2) {
-        //   beep({ duration: 100, frequency: 350 });
-        // }
-      }
-      return newValue;
-    }),
-    { isPaused: isTimedOut || isPaused },
+    (deltaTime) => setElapsedTime((prevState) => prevState + deltaTime / 1000),
+    { isPaused },
   );
 
   const resetTimer = () => {
@@ -117,7 +107,7 @@ function Timer() {
         className={styles.pieContainer}
       >
         <Pie
-          percentage={100 * (1 - elapsedPercentage)}
+          percentage={elapsedPercentage > 1 ? 0 : 100 * (1 - elapsedPercentage)}
         />
 
         <div
@@ -144,7 +134,7 @@ function Timer() {
               disabled={isTimedOut}
               onClick={toggleTimer}
             >
-              {isPaused || !isStarted ? 'START' : 'STOP'}
+              {isPaused ? 'START' : 'PAUSE'}
             </button>
             <button
               disabled={!isStarted}
